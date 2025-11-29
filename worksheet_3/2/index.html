@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Rendering</title>
+    <script type="text/javascript" src="../../MV.js"></script>
+    <script type="text/javascript" src="main.js"></script>
+    <script id="wgsl" type="x-shader" src="shaders.wgsl"></script>
+</head>
+
+<body style="display: flex; flex-direction: row;">
+    <canvas id="canvas" width="512" height="512">
+        Please use a browser that supports HTML5 canvas.
+    </canvas>
+    <div>
+        <fieldset>
+            <legend>Camera Parameters</legend>
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Value</th>
+                        <th>Control</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <label for="cameraConstantSlider">Camera constant:</label>
+                        </td>
+                        <td>
+                            <span id="cameraConstantSliderValue">1</span>
+                        </td>
+                        <td>
+                            <input type="range" id="cameraConstantSlider" min="0.1" max="5" value="1" step="0.1"/>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </fieldset>
+        <fieldset>
+            <legend>Scene Parameters</legend>
+            <table style="width: 100%;">
+                <tbody>
+                    <tr>
+                        <td>
+                            <label for="mattShaderSelect">Matt shader:</label>
+                        </td>
+                        <td>
+                            <select id="mattShaderSelect" style="width: 100%;">
+                                <option value="1">Lambertian</option>
+                                <option value="0">Base Color</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="glassShaderSelect">Glass shader:</label>
+                        </td>
+                        <td>
+                            <select id="glassShaderSelect" style="width: 100%;">
+                                <option value="5">Glossy</option>
+                                <option value="2">Phong</option>
+                                <option value="3">Mirror</option>
+                                <option value="4">Refraction</option>
+                            </select>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </fieldset>
+        <fieldset>
+            <legend>Texture Parameters</legend>
+            <table style="width: 100%;">
+                <tbody>
+                    <tr>
+                        <td>
+                            <label for="textureLookupSelect">Lookup:</label>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                            <select id="textureLookupSelect" style="width: 100%;">
+                                <option value="0">Repeat</option>
+                                <option value="1">Clamp</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="textureFilterSelect">Filtering:</label>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                            <select id="textureFilterSelect" style="width: 100%;">
+                                <option value="1">Bilinear</option>
+                                <option value="0">Nearest</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="texturingSelect">Texturing:</label>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                            <select id="texturingSelect" style="width: 100%;">
+                                <option value="1">Yes</option>
+                                <option value="0">No</option>
+                            </select>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </fieldset>
+    </div>
+</body>
+
+</html>
