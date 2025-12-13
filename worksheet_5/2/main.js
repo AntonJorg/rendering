@@ -55,7 +55,7 @@ async function main() {
     });
 
     // object
-    const obj_filename = '../objects/teapot.obj';
+    const obj_filename = '../../objects/teapot.obj';
     const obj = await readOBJFile(obj_filename, 1, true); // file name, scale, ccw vertices
 
     console.log(obj)
@@ -103,11 +103,11 @@ async function main() {
 
     let user_inputs = {
         cam_const: 2.5,
-        matt_shader: 0,
+        matt_shader: 1,
         glass_shader: 5,
         texture_lookup: 0,
         texture_filtering: 1,
-        texturing: 0,
+        texturing: 1,
         subdivision_level: 1,
         texture_magnification: 1,
     };

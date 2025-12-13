@@ -54,7 +54,7 @@ async function main() {
     });
 
     // object
-    const obj_filename = '../objects/triangle.obj';
+    const obj_filename = '../../objects/triangle.obj';
     const obj = await readOBJFile(obj_filename, 1, true); // file name, scale, ccw vertices
 
     const positionBuffer = device.createBuffer({

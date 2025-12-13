@@ -258,7 +258,7 @@ fn intersect_scene(r: ptr<function, Ray>, hit : ptr<function, HitInfo>) -> bool 
     let plane = uniforms.scene.plane;
     let triangle = uniforms.scene.triangle;
 
-    for (var i: u32 = 0; i < arrayLength(&meshFaces) / 5; i++) {
+    for (var i: u32 = 0; i < arrayLength(&meshFaces); i++) {
         intersect_triangle(*r, hit, i);
         if (hit.has_hit) {
             r.tmax = hit.dist;
@@ -286,9 +286,17 @@ fn sample_point_light(position: vec3f) -> Light {
     );
 }
 
+fn sample_directional_light(pos: vec3f) -> Light {
+    return Light (
+    vec3f(3.14159),
+    -normalize(vec3f(-1.0)),
+    1000,
+    );
+}
+
 fn lambertian(r: ptr<function, Ray>, hit: ptr<function, HitInfo>) -> vec3f {
     
-    let light = sample_point_light(hit.position);
+    let light = sample_directional_light(hit.position);
     
     var color = Color(vec3f(0.0), vec3f(0.0), vec3f(0.0));
     var shadow_hit = HitInfo(
@@ -300,17 +308,18 @@ fn lambertian(r: ptr<function, Ray>, hit: ptr<function, HitInfo>) -> vec3f {
         1,
         1.0,
     );
-    var shadow_ray = Ray(hit.position, light.w_i, 1e-4, light.dist);
+    
+    let angle_of_incidence = dot(hit.normal, light.w_i);
+    
+    var shadow_ray = Ray(hit.position, light.w_i, 1e-4, light.dist - 1e-4);
 
     let shadow = intersect_scene(&shadow_ray, &shadow_hit);
+
+    let l_o = hit.color.diffuse / 3.1415 * light.L_i * angle_of_incidence;
 
     if (shadow) {
         return hit.color.ambient;
     }
-    
-    let angle_of_incidence = dot(hit.normal, r.direction);
-
-    let l_o = hit.color.diffuse * light.L_i * angle_of_incidence;
 
     return l_o + hit.color.ambient;
 }
