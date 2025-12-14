@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Rendering</title>
+    <script type="text/javascript" src="../../MV.js"></script>
+    <script type="text/javascript" src="../../OBJParser_interleaved.js"></script>
+    <script type="text/javascript" src="../../Aabb.js"></script>
+    <script type="text/javascript" src="../../BspTree_interleaved.js"></script>
+    <script type="text/javascript" src="../../TimingHelper.js"></script>
+    <script type="text/javascript" src="main.js"></script>
+    <script id="wgsl" type="x-shader" src="shaders.wgsl"></script>
+</head>
+
+<body>
+    <div style="display: flex; flex-direction: row; width: 100%;">
+        <canvas id="canvas" width="512" height="512">
+            Please use a browser that supports HTML5 canvas.
+        </canvas>
+        <div style="flex-grow: 1;">
+            <fieldset>
+                <legend>Rendering Parameters</legend>
+                <table style="width: 100%;">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <label for="cameraConstantSlider">Camera constant:</label>
+                            </td>
+                            <td>
+                                <span id="cameraConstantSliderValue">1</span>
+                            </td>
+                            <td>
+                                <input type="range" id="cameraConstantSlider" min="0.1" max="5" value="1" step="0.1" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="subdivisionLevelSlider">Subdivision Level:</label>
+                            </td>
+                            <td>
+                                <span id="subdivisionLevelSliderValue">1</span>
+                            </td>
+                            <td>
+                                <input type="range" id="subdivisionLevelSlider" min="1" max="10" value="1" step="1" />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </fieldset>
+            <fieldset>
+                <legend>Shader Parameters</legend>
+                <table style="width: 100%;">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <label for="mattShaderSelect">Matt shader:</label>
+                            </td>
+                            <td>
+                                <select id="mattShaderSelect" style="width: 100%;">
+                                    <option value="1">Lambertian</option>
+                                    <option value="0">Base Color</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </fieldset>
+            <label>
+                <input type="checkbox" id="progressiveToggle" checked>
+                Progressive rendering
+            </label>
+            <label>
+                <input type="checkbox" id="backgroundToggle">
+                Black background
+            </label>
+        </div>
+    </div>
+</body>
+
+</html>
