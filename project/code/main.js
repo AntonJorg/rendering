@@ -160,7 +160,7 @@ async function main() {
     };
 
     const aspect = canvas.width / canvas.height;
-    const gamma = 1.2;
+    const gamma = 1.5;
 
     const viewdir = normalize(subtract(lookat, eyepos));
     const b1 = normalize(cross(viewdir, up));

@@ -1,0 +1,38 @@
+\makeatletter
+\begin{titlepage}
+
+\thispagestyle{empty}
+\vspace*{\stretch{.6}}
+\begin{center}
+%\rule{\textwidth}{1mm}\\% Laver en linje på tværs 
+\vspace{0.7cm} % Laver mellemrum v
+\LARGE\bfseries
+\@title \\ 
+{\large \subtitle} \\ \vspace{0.3cm}
+\rule{.85\textwidth}{.65mm}\\
+\course \\ \@date \\
+\rule{.85\textwidth}{.65mm}\\
+\vspace{1cm} \Large
+%\rule{\textwidth}{1mm}\\
+
+\@author
+
+\vspace{100pt}
+\includegraphics[width=0.20\textwidth]{setup/img/DTU_LOGO.png}
+\vspace*{\stretch{2}}
+\end{center}
+
+\AddToShipoutPictureBG*{%]
+    \AtPageLowerLeft{%
+        \includegraphics[width=1.0\paperwidth]{setup/img/DTU_footer.png}
+    }%
+}
+
+% Print the white text on the footer
+\PlaceText{70mm}{280mm}{\color{white}\fontsize{12}{0}\rmfamily DANMARKS TEKNISKE UNIVERSITET }
+\PlaceText{93mm}{285mm}{\color{white}\fontsize{8}{0}\rmfamily DTU COMPUTE }
+\end{titlepage}
+
+\makeatother
+
+\newpage

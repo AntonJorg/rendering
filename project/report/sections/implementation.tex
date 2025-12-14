@@ -1,0 +1,129 @@
+\section{Implementation}
+
+This section explains the concrete WGSL implementation of the procedural noise functions and the two materials. Code excerpts are included using \texttt{listings} and referenced explicitly in the text.
+
+\subsection{Noise Functions}
+
+All procedural variation is built on a compact value-noise implementation and its multi-octave extension.
+
+\subsubsection{Hash Function}
+
+Listing~\ref{lst:hash} shows a simple hash that maps a 3D point to a pseudo-random scalar in $[0,1)$. It uses a dot product with large constants followed by a sine and fractional extraction.
+
+\begin{lstlisting}[language=C,caption={Hash function},label={lst:hash}]
+fn hash3(p: vec3f) -> f32 {
+    let h = dot(p, vec3f(127.1, 311.7, 74.7));
+    return fract(sin(h) * 43758.5453);
+}
+\end{lstlisting}
+
+This function is inexpensive and sufficient for decorrelating lattice points in procedural textures.
+
+\subsubsection{Value Noise}
+
+Value noise is implemented by hashing the eight corners of the unit cube surrounding the query point and trilinearly interpolating between them. The implementation is shown in Listing~\ref{lst:value-noise}.
+
+\begin{lstlisting}[language=C,caption={3D value noise},label={lst:value-noise}]
+fn value_noise(p: vec3f) -> f32 {
+    let i = floor(p);
+    let f = fract(p);
+    let u = f * f * (3.0 - 2.0 * f);
+    ...
+    return mix(nxy0, nxy1, u.z);
+}
+\end{lstlisting}
+
+The cubic polynomial used to compute \texttt{u} is a smoothstep function, ensuring continuous first derivatives across cell boundaries.
+
+\subsubsection{Fractal Brownian Motion}
+
+Fractal Brownian motion (fBm) is implemented as a fixed sum of five octaves of value noise (Listing~\ref{lst:fbm}). Frequency doubles and amplitude halves each octave.
+
+\begin{lstlisting}[language=C,caption={Fractal Brownian motion},label={lst:fbm}]
+fn fbm(p: vec3f) -> f32 {
+    var sum = 0.0;
+    var amp = 0.5;
+    var freq = 1.0;
+    for (var i = 0; i < 5; i++) {
+        sum += amp * value_noise(p * freq);
+        freq *= 2.0;
+        amp *= 0.5;
+    }
+    return sum;
+}
+\end{lstlisting}
+
+This produces smooth, scale-invariant noise used for both domain warping and fine detail.
+
+\subsection{Procedural Wood Material}
+
+The wood material implementation is shown in Listing~\ref{lst:wood}. It models a tree trunk using an axial coordinate system, growth rings, and longitudinal grain.
+
+\begin{lstlisting}[language=C,caption={Procedural wood material},label={lst:wood}]
+fn progressive_material_wood(pos: vec3f) -> Material {
+    let center_pos = vec3f(25.0, 0.0, 25.0);
+    let d = normalize(vec3f(0.2, 1, -0.1));
+    ...
+    return Material(vec3f(0.0), color);
+}
+\end{lstlisting}
+
+\paragraph{Coordinate System}
+The trunk axis is defined by \texttt{center\_pos} and direction \texttt{d}. An orthonormal basis $(\mathbf{u},\mathbf{v},\mathbf{d})$ is constructed using cross products. A conditional choice of the reference ``up'' vector avoids numerical instability when \texttt{d} is nearly vertical.
+
+Each shading point is decomposed into:
+\[
+t = (\mathbf{p}-\mathbf{p}_0)\cdot\mathbf{d}, \qquad
+r = \|\mathbf{p} - (\mathbf{p}_0 + t\mathbf{d})\|.
+\]
+
+\paragraph{Domain Warping}
+The radial distance $r$ is perturbed using two fBm evaluations at different frequencies. This step (lines computing \texttt{turb}, \texttt{turb2}, and \texttt{warp\_r}) introduces irregular, natural-looking ring deformation.
+
+\paragraph{Growth Rings}
+Ring spacing is controlled by a nonlinear phase:
+\[
+\phi(r) = f\,(r + \alpha r^2),
+\]
+implemented via \texttt{ring\_freq} and \texttt{taper}. This produces wide inner rings and progressively tighter outer rings. The sinusoidal signal is sharpened using \texttt{smoothstep} to emphasize contrast between earlywood and latewood.
+
+\paragraph{Longitudinal Grain}
+The angular coordinate
+\[
+\theta = \operatorname{atan2}(\mathbf{r}\cdot\mathbf{v},\mathbf{r}\cdot\mathbf{u})
+\]
+is combined with the axial coordinate $t$ and evaluated through fBm. This creates streaks aligned with the trunk. The resulting grain signal modulates the base color multiplicatively.
+
+\paragraph{Color Composition}
+Two fixed colors represent dark and light wood. Ring structure selects between them, while grain and a low-frequency tint variation further modulate the result. The material has no emission and is purely diffuse.
+
+\subsection{Procedural Marble Material}
+
+The marble material is shown in Listing~\ref{lst:marble}.
+
+\begin{lstlisting}[language=C,caption={Procedural marble material},label={lst:marble}]
+fn progressive_material_marble(pos: vec3f) -> Material {
+    let center_pos = vec3f(0.0, 0.0, 0.0);
+    let d = normalize(vec3f(0.2, 0.6, 0.77));
+    ...
+    return Material(vec3f(0.0), color);
+}
+\end{lstlisting}
+
+\paragraph{Directional Parameterization}
+A dominant vein direction \texttt{d} defines a scalar coordinate
+\[
+x = (\mathbf{p}-\mathbf{p}_0)\cdot\mathbf{d}.
+\]
+
+\paragraph{Turbulence and Veins}
+An fBm-based turbulence term perturbs the phase of a sinusoidal function of $x$:
+\[
+M(\mathbf{p}) = \tfrac{1}{2}\left[1 + \sin(\omega x + \gamma T(\mathbf{p}))\right].
+\]
+This produces characteristic marble veins. A smoothstep operation sharpens the result.
+
+\paragraph{Color Mapping}
+Two colors define the base stone and the veins. The final diffuse color is obtained by interpolating between them using the processed band signal.
+
+Overall, the implementation closely mirrors the mathematical formulation while remaining compact and efficient in WGSL, requiring no texture memory and minimal branching.

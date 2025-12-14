@@ -1,0 +1,7 @@
+\section{Introduction}
+
+Procedural textures generate surface appearance analytically, e.g. as a function of position, rather than relying on stored image data. When applicable, this approach offers several advantages, including the absence of texture memory usage, resolution independence, and consistent appearance under magnification. Because procedural textures are defined in continuous space, they integrate naturally with physically based rendering and path tracing pipelines.
+
+Procedural textures are particularly well suited for materials with repetitive or stochastic structure, such as wood, marble, stone, clouds, smoke, or terrain, where the visual pattern follows geometric rules rather than specific imagery. They are also advantageous when materials must scale to large scenes, support extreme zoom levels, or remain stable under deformation and animation.
+
+However, procedural textures are not universally appropriate. Materials that require precise, artist-authored detail (such as signage, text, logos, decals, or unique surface markings) are typically better represented using image-based textures. In these cases, direct control over exact pixel content outweighs the benefits of analytic generation. As a result, procedural and image-based textures are best viewed as complementary tools, each suited to different classes of materials and visual requirements.

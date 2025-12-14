@@ -266,9 +266,10 @@ fn intersect_triangle(ray: Ray, hit: ptr<function, HitInfo>, triangle_idx: u32) 
         let hit_position = ray.origin + t * ray.direction;
 
         var material: Material;
-        if (triangle_idx > 11) {
-            // turn pink
-            material = progressive_material(hit_position);
+        if (triangle_idx < 6) {
+            material = progressive_material_wood(hit_position);
+        } else if (triangle_idx > 11) {
+            material = progressive_material_marble(hit_position);
         } else {
             let mat_index = face[3];
             material = materials[mat_index];
@@ -590,30 +591,129 @@ fn shade(r: ptr<function, Ray>, hit: ptr<function, HitInfo>, seed: ptr<function,
     }
 }
 
-fn progressive_material(pos: vec3f) -> Material {
-    let center_pos = vec3f(24.0, 15.0, 0.0);
-    let center_dir = normalize(vec3f(0.0, 0.0, 1.0));
-    let orthogonal_dir = normalize(cross(center_dir, vec3f(0.0, 1.0, 0.0)));
 
-    let pos_diff = pos - center_pos;
+fn hash3(p: vec3f) -> f32 {
+    // Cheap hash -> [0,1)
+    let h = dot(p, vec3f(127.1, 311.7, 74.7));
+    return fract(sin(h) * 43758.5453);
+}
 
-    const dark_wood = vec3f(0.4, 0.2, 0.1);
-    const light_wood = vec3f(0.6, 0.4, 0.2);
+fn value_noise(p: vec3f) -> f32 {
+    // Trilinear-interpolated value noise
+    let i = floor(p);
+    let f = fract(p);
 
-    let dist = length(cross(center_dir, pos_diff));
+    // Smoothstep for interpolation
+    let u = f * f * (3.0 - 2.0 * f);
 
-    let projected = pos_diff - dot(pos_diff, center_dir) * center_dir;
-    let angle = 3.1415 + atan2(dot(projected, orthogonal_dir), dot(projected, cross(center_dir, orthogonal_dir)));
+    let n000 = hash3(i + vec3f(0.0, 0.0, 0.0));
+    let n100 = hash3(i + vec3f(1.0, 0.0, 0.0));
+    let n010 = hash3(i + vec3f(0.0, 1.0, 0.0));
+    let n110 = hash3(i + vec3f(1.0, 1.0, 0.0));
+    let n001 = hash3(i + vec3f(0.0, 0.0, 1.0));
+    let n101 = hash3(i + vec3f(1.0, 0.0, 1.0));
+    let n011 = hash3(i + vec3f(0.0, 1.0, 1.0));
+    let n111 = hash3(i + vec3f(1.0, 1.0, 1.0));
 
-    let dist_factor = 0.2 *(cos(2 * angle) + cos(angle) - cos(angle * 6.28318 / 5.0) * sin(angle / 3.1415) + 4.0);
+    let nx00 = mix(n000, n100, u.x);
+    let nx10 = mix(n010, n110, u.x);
+    let nx01 = mix(n001, n101, u.x);
+    let nx11 = mix(n011, n111, u.x);
 
-    let apparent_dist = dist * dist_factor;
+    let nxy0 = mix(nx00, nx10, u.y);
+    let nxy1 = mix(nx01, nx11, u.y);
 
-    let color = mix(dark_wood, light_wood, 0.5 + 0.5 * sin(apparent_dist * apparent_dist * 0.25));
+    return mix(nxy0, nxy1, u.z);
+}
+
+fn fbm(p: vec3f) -> f32 {
+    var sum = 0.0;
+    var amp = 0.5;
+    var freq = 1.0;
+    for (var i = 0; i < 5; i++) {
+        sum += amp * value_noise(p * freq);
+        freq *= 2.0;
+        amp *= 0.5;
+    }
+    return sum; // ~[0,1)
+}
+
+fn progressive_material_wood(pos: vec3f) -> Material {
+    let center_pos = vec3f(25.0, 0.0, 25.0);
+    let d = normalize(vec3f(0.2, 1, -0.1));
+
+    let up = select(vec3f(0.0, 1.0, 0.0), vec3f(1.0, 0.0, 0.0), abs(d.y) > 0.95);
+    let u = normalize(cross(up, d));
+    let v = cross(d, u);
+
+    let pd = pos - center_pos;
+    let t = dot(pd, d);
+    let proj = center_pos + t * d;
+    let radial = pos - proj;
+    let r = length(radial);
+
+    let p = pos * 0.20;
+    let turb = 2.0 * fbm(p * 2.0) - 1.0;
+    let turb2 = 2.0 * fbm(p * 6.0 + 13.7) - 1.0;
+    let warp_r = r + 0.35 * turb + 0.10 * turb2;
+
+    let ring_freq = 0.5; 
+    let taper = 0.25;
+
+    let phase = ring_freq * (warp_r + taper * warp_r * warp_r);
+
+    let rings = 0.5 + 0.5 * sin(phase);
+    let ring_sharp = smoothstep(0.25, 0.85, rings);
+
+    let angle = atan2(dot(radial, v), dot(radial, u));
+    let grain = fbm(vec3f(t * 0.6, angle, 0.0) + pos * 0.05);
+    let grain_contrast = smoothstep(0.35, 0.75, grain);
+
+
+    let dark_wood  = vec3f(0.33, 0.17, 0.08);
+    let light_wood = vec3f(0.62, 0.42, 0.22);
+
+    // Base from rings
+    var color = mix(dark_wood, light_wood, ring_sharp);
+
+    color *= mix(0.85, 1.05, grain_contrast);
+
+    let tint = fbm(pos * 0.08 + 4.2);
+    color *= (0.95 + 0.10 * tint);
 
     return Material(
         vec3f(0.0),
-        color,
+        color
+    );
+}
+
+fn progressive_material_marble(pos: vec3f) -> Material {
+    let center_pos = vec3f(0.0, 0.0, 0.0);
+    let d = normalize(vec3f(0.2, 0.6, 0.77));
+
+    let x = dot(pos - center_pos, d);
+
+    // Turbulence (domain warp)
+    let p = pos * 0.15;
+    let t = fbm(p * 2.0);                    // [0,1)
+    let warp = 2.0 * t - 1.0;                // [-1,1]
+
+    // Marble bands
+    let frequency = 3.0;
+    let phase = x * frequency + 10.0 * warp;  // warp the phase
+    let bands = 0.5 + 0.5 * sin(phase);
+
+    // Sharpen veins a bit
+    let veins = smoothstep(0.25, 0.75, bands);
+
+    let base = vec3f(0.92, 0.92, 0.94);
+    let vein = vec3f(0.20, 0.20, 0.25);
+
+    let color = mix(vein, base, veins);
+
+    return Material(
+        vec3f(0.0),
+        color
     );
 }
 

@@ -1,0 +1,40 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+% Optional bibliography:
+%\usepackage{biblatex}
+%\addbibresource{references.bib}
+
+
+%import aaaalll the settings:
+\input{setup/settings.tex}
+
+% Defining document information
+\title{Procedural Solid Texturing}
+\newcommand{\subtitle}{Project Report}
+\newcommand{\course}{02562 Rendering - Introduction}
+\date{December 2025}
+\author{Anton Thestrup Jorgensen \\ s194268}
+
+\begin{document}
+
+\pagenumbering{roman}
+
+\include{setup/title_page}
+
+\newpage
+\thispagestyle{plain}
+\tableofcontents
+\newpage
+
+\pagenumbering{arabic}
+
+% add sections here
+\input{sections/introduction}
+\input{sections/method}
+\input{sections/implementation}
+\input{sections/results}
+\input{sections/discussion}
+
+
+\end{document}

@@ -1,0 +1,118 @@
+\usepackage[english]{babel}
+\usepackage{booktabs}
+\usepackage[normalem]{ulem}
+\usepackage{latexsym}
+\usepackage{pdfpages}
+\setlength{\parindent}{0pt}
+\usepackage{setspace}
+\usepackage{float}
+\onehalfspacing
+\usepackage{csquotes}
+\usepackage{color}
+\usepackage{afterpage}
+
+% LISTINGS SETTINGS
+\usepackage{listings}
+
+\definecolor{background}{RGB}{39, 40, 34}
+\definecolor{string}{RGB}{230, 219, 116}
+\definecolor{comment}{RGB}{117, 113, 94}
+\definecolor{normal}{RGB}{248, 248, 242}
+\definecolor{identifier}{RGB}{166, 226, 46}
+
+\lstnewenvironment{Python}
+  {\lstset{
+  language=python,                			% choose the language of the code
+  numbers=left,                   		% where to put the line-numbers
+  stepnumber=1,                   		% the step between two line-numbers.        
+  numbersep=5pt,                  		% how far the line-numbers are from the code
+  numberstyle=\tiny\color{black}\ttfamily,
+  backgroundcolor=\color{background},  		% choose the background color. You must add \usepackage{color}
+  showspaces=false,               		% show spaces adding particular underscores
+  showstringspaces=false,         		% underline spaces within strings
+  showtabs=false,                 		% show tabs within strings adding particular underscores
+  tabsize=4,                      		% sets default tabsize to 2 spaces
+  captionpos=b,                   		% sets the caption-position to bottom
+  breaklines=true,                		% sets automatic line breaking
+  breakatwhitespace=true,         		% sets if automatic breaks should only happen at whitespace
+  title=\lstname,                 		% show the filename of files included with \lstinputlisting;
+  basicstyle=\color{normal}\ttfamily,					% sets font style for the code
+  keywordstyle=\color{magenta}\ttfamily,	% sets color for keywords
+  stringstyle=\color{string}\ttfamily,		% sets color for strings
+  commentstyle=\color{comment}\ttfamily,	% sets color for comments
+  emph={format_string, eff_ana_bf, permute, eff_ana_btr},
+  emphstyle=\color{identifier}\ttfamily
+}}{}
+ 
+
+
+%don't number subsections
+\setcounter{secnumdepth}{1}
+
+% Specify the margins. This is 6.25inches in text with which 
+% can be used to size figures to the correct size.
+\usepackage[a4paper, margin=2.5625cm]{geometry}
+
+\usepackage[parfill]{parskip}			% New line instead of indent for sections
+
+%make math look very pretty:
+\usepackage{amsmath}                    % Make pretty math
+\usepackage{amssymb}                    % Extended symbol collection
+
+%bibliography:
+%\usepackage[citestyle=ieee, bibstyle=ieee,style=numeric-comp,sorting=nty,maxbibnames=99]{biblatex}
+%\usepackage[citestyle=authortitle,bibstyle=numeric]{biblatex}
+%Makes the last name first in the bibliography.
+%\DeclareNameAlias{author}{last-first}
+%\DeclareNameAlias{author}{family-given}
+%\addbibresource{references.bib}
+%layout:
+\usepackage{tikz}
+\usetikzlibrary{fadings}
+\usepackage{eso-pic}					% Packages for layout and graphics (example set image as background image)
+\usepackage{graphicx}
+\usepackage{fancyhdr}					% Setting the style for header and footer.
+\usepackage{lastpage}
+
+\usepackage[hidelinks]{hyperref}		% Clickable links
+
+\usepackage{caption}                % For subfigures
+\usepackage{subcaption}
+\usepackage[printonlyused]{acronym}
+
+
+% Specifying fonts
+%\setmainfont{Georgia} 
+%\setsansfont{Arial}
+%\newfontfamily\footerfont{Georgia}
+
+%\chapterfont{\sffamily\fontsize{17}{17}}
+%\sectionfont{\sffamily\fontsize{14}{15}}
+%\subsectionfont{\sffamily\fontsize{13}{15}}
+%\subsubsectionfont{\sffamily\fontsize{12}{15}}
+
+
+% Styling the header and footer
+\fancyhf{}
+\fancyhead{}
+\fancyfoot{}
+\fancyhead[L]{\fontsize{11}{10}\selectfont\leftmark}
+\fancyfoot[R]{\thepage \hspace{1pt} af \pageref{LastPage}}
+\setlength{\headheight}{15.5pt}
+
+\fancypagestyle{plain}{
+    \fancyhf{}
+    \fancyhead{}
+    \fancyfoot{}
+    \renewcommand{\headrulewidth}{0pt}
+}
+\pagestyle{fancy}
+
+% Making the command for placing text in random locations
+\newcommand\PlaceText[3]{%
+\begin{tikzpicture}[remember picture,overlay]
+\node[outer sep=0pt,inner sep=0pt,anchor=south west] 
+  at ([xshift=#1,yshift=-#2]current page.north west) {#3};
+\end{tikzpicture}%
+}
+
