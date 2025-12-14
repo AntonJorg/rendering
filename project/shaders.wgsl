@@ -591,15 +591,25 @@ fn shade(r: ptr<function, Ray>, hit: ptr<function, HitInfo>, seed: ptr<function,
 }
 
 fn progressive_material(pos: vec3f) -> Material {
-    let center_pos = vec3f(20.0, 20.0, 0.0);
-    let center_dir = vec3f(0.0, 0.0, 1.0); // unit length
+    let center_pos = vec3f(24.0, 15.0, 0.0);
+    let center_dir = normalize(vec3f(0.0, 0.0, 1.0));
+    let orthogonal_dir = normalize(cross(center_dir, vec3f(0.0, 1.0, 0.0)));
+
+    let pos_diff = pos - center_pos;
 
     const dark_wood = vec3f(0.4, 0.2, 0.1);
     const light_wood = vec3f(0.6, 0.4, 0.2);
 
-    let dist = length(cross(center_dir, pos - center_pos));
+    let dist = length(cross(center_dir, pos_diff));
 
-    let color = mix(dark_wood, light_wood, 0.5 + 0.5 * sin(dist * dist * 0.25));
+    let projected = pos_diff - dot(pos_diff, center_dir) * center_dir;
+    let angle = 3.1415 + atan2(dot(projected, orthogonal_dir), dot(projected, cross(center_dir, orthogonal_dir)));
+
+    let dist_factor = 0.2 *(cos(2 * angle) + cos(angle) - cos(angle * 6.28318 / 5.0) * sin(angle / 3.1415) + 4.0);
+
+    let apparent_dist = dist * dist_factor;
+
+    let color = mix(dark_wood, light_wood, 0.5 + 0.5 * sin(apparent_dist * apparent_dist * 0.25));
 
     return Material(
         vec3f(0.0),
