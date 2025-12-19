@@ -7,3 +7,11 @@
     \caption{Final render of the scene with procedural wood and marble materials using different lighting conditions.}
     \label{fig:scene_final}
 \end{figure}
+
+Figure~\ref{fig:scene_final} shows the final scene; the Cornelle Box (no blocks), populated by the Stanford Bunny and two spheres using a mirror and refractive shader respectively. It is rendered with two procedural solid materials: wood on the previously gray surfaces of the Cornell Box, and marble on the Stanford Bunny.
+
+The wood material produces visible growth rings with irregular ring boundaries and a weaker longitudinal grain component. The ring structure is wider near the center of the log, and tapers off with distance. The noise is perhaps a bit too aggressive, and a stronger angular dependency could be implemented to make the rings less circular if desired.
+
+The marble material produces banded veining aligned with a single dominant direction. The veining thickness and spacing vary smoothly due to turbulence, and the transition between vein and base stone is fairly sharp. The noise level works well for the 3D structure/scale of the bunny, and produces both bands and specks.
+
+The two images use different lighting conditions via a blue and black background respectively. Under cooler illumination the marble appears higher-contrast and the wood reads slightly more desaturated, while warmer illumination emphasizes the latewood/earlywood color difference and reduces the perceived contrast of the marble veins. The lower overall lighting in the black background case also contributes to this effect.

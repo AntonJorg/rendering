@@ -673,7 +673,6 @@ fn progressive_material_wood(pos: vec3f) -> Material {
     let dark_wood  = vec3f(0.33, 0.17, 0.08);
     let light_wood = vec3f(0.62, 0.42, 0.22);
 
-    // Base from rings
     var color = mix(dark_wood, light_wood, ring_sharp);
 
     color *= mix(0.85, 1.05, grain_contrast);

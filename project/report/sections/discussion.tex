@@ -1,0 +1,19 @@
+\section{Discussion}
+
+\paragraph{Wood.}
+The wood appearance comes primarily from a radial phase function (rings) combined with domain warping and an fBm-based grain term. Domain warping is important: without it, the rings would be perfectly concentric and the material would look synthetic. With warping, ring spacing and ring boundaries become locally irregular, which better matches real growth variation.
+
+A limitation is that the current model is purely diffuse. Under strong illumination the wood lacks view-dependent effects such as a subtle clearcoat or specular sheen, which are common for varnished or polished wood. Adding a specular lobe (and optionally a clearcoat layer) would improve realism while keeping the same diffuse albedo model. For non-treated wood, an improvement could be in reproducing splinters and bumps with a procedural normal map.
+
+\paragraph{Marble.}
+The marble model uses a sinusoidal band function whose phase is perturbed by turbulence. This reliably produces veins and keeps them continuous in 3D. The smooth thresholding step increases vein contrast, which helps readability at typical viewing distances, but it also risks making the veins look too binary if the threshold is too aggressive. A softer mapping (or a multi-band color ramp) could preserve contrast while keeping more mid-tones.
+
+\paragraph{Interaction with lighting.}
+Because both materials are mostly low-frequency albedo modulation (diffuse), the perceived quality depends strongly on illumination spectrum and intensity. In the cooler lighting, the marble’s dark veins separate more strongly from the base, while warmer lighting visually compresses that contrast. This is expected: the models encode structure in albedo, so color temperature shifts and global exposure changes directly affect apparent contrast and material identity.
+
+\paragraph{Numerical and implementation considerations.}
+The noise implementation uses hashed value noise with smooth interpolation, and fBm sums multiple octaves. This is efficient and stable for real-time shading, but value noise can show mild grid-aligned bias in some cases. If this becomes visible (e.g., faint axis-aligned banding on large smooth surfaces), switching to gradient noise or applying a small domain rotation per octave can reduce directional artifacts.
+
+\paragraph{Overall.}
+Two solid procedural materials with continuous 3D structure and no texture lookups—is achieved. The wood reads as ring-based with natural irregularity, and the marble reads as directionally veined with turbulent distortion. The most direct improvements would be (1) adding a specular/clearcoat component (or mesoscale geometry) for wood, (2) refining the marble color mapping beyond two colors, and (3) reducing potential grid artifacts by improving the noise basis.
+
